@@ -2,7 +2,7 @@
 # %pip install -q langchain langchain_experimental openai python-dotenv langchain_openai
 from langchain_openai import ChatOpenAI
 from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain.memory import ChatMessageHistory
+from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 import os
 from dotenv import load_dotenv
@@ -12,7 +12,7 @@ os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 
 # Load environment variables and initialize the language model
 load_dotenv()
-llm = ChatOpenAI(model="gpt-4", max_tokens=1000, temperature=0)
+llm = ChatOpenAI(model="gpt-3.5-turbo", max_tokens=1000, temperature=0)
 
 # Create a simple in-memory store for chat histories
 store = {}
@@ -40,3 +40,25 @@ chain = prompt | llm
 chain_with_history = RunnableWithMessageHistory(
     chain, get_chat_history, input_messages_key="input", history_messages_key="history"
 )
+
+# Example usage
+session_id = "user_123"
+
+# First interaction
+response1 = chain_with_history.invoke(
+    {"input": "Hello! How are you?"},
+    config={"configurable": {"session_id": session_id}},
+)
+print("AI:", response1.content)
+
+# Second interaction
+response2 = chain_with_history.invoke(
+    {"input": "What was my previous message?"},
+    config={"configurable": {"session_id": session_id}},
+)
+print("AI:", response2.content)
+
+# Print the conversation history
+print("\nConversation History:")
+for message in store[session_id].messages:
+    print(f"{message.type}: {message.content}")
