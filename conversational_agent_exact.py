@@ -7,11 +7,12 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 import os
 from dotenv import load_dotenv
 
+load_dotenv()
 # Set OpenAI API key
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 
 # Load environment variables and initialize the language model
-load_dotenv()
+
 llm = ChatOpenAI(model="gpt-3.5-turbo", max_tokens=1000, temperature=0)
 
 # Create a simple in-memory store for chat histories
