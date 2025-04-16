@@ -90,3 +90,50 @@ def synthesize_final_answer(history_agent, task: str, context: list) -> str:
     synthesis_task = "Based on all the historical context, data, and analysis, provide a comprehensive answer to the original task."
     final_result = history_agent.process(synthesis_task, context)
     return final_result
+
+class HistoryDataCollaborationSystem:
+    def __init__(self):
+        self.history_agent = HistoryResearchAgent()
+        self.data_agent = DataAnalysisAgent()
+
+    def solve(self, task: str, timeout: int = 300) -> str:
+        print(f"\n👥 Starting collaboration to solve: {task}\n")
+        
+        start_time = time.time()
+        context = []
+        
+        steps = [
+            (research_historical_context, self.history_agent),
+            (identify_data_needs, self.data_agent),
+            (provide_historical_data, self.history_agent),
+            (analyze_data, self.data_agent),
+            (synthesize_final_answer, self.history_agent)
+        ]
+        
+        for step_func, agent in steps:
+            if time.time() - start_time > timeout:
+                return "Operation timed out. The process took too long to complete."
+            try:
+                result = step_func(agent, task, context)
+                if isinstance(result, str):
+                    return result  # This is the final answer
+                context = result
+            except Exception as e:
+                return f"Error during collaboration: {str(e)}"
+        
+        print("\n✅ Collaboration complete. Final answer synthesized.\n")
+        return context[-1]["content"]
+    
+# Example usage
+if __name__ == "__main__":
+    # Create an instance of the collaboration system
+    collaboration_system = HistoryDataCollaborationSystem()
+
+    # Define a complex historical question that requires both historical knowledge and data analysis
+    question = "How did urbanization rates in Europe compare to those in North America during the Industrial Revolution, and what were the main factors influencing these trends?"
+
+    # Solve the question using the collaboration system
+    result = collaboration_system.solve(question)
+
+    # Print the result
+    print(result)
