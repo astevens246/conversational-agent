@@ -35,3 +35,58 @@ class Agent:
         messages.append(HumanMessage(content=task))
         response = self.llm.invoke(messages)
         return response.content
+    
+class HistoryResearchAgent(Agent):
+    def __init__(self):
+        super().__init__("Clio", "History Research Specialist", ["deep knowledge of historical events", "understanding of historical contexts", "identifying historical trends"])
+
+class DataAnalysisAgent(Agent):
+    def __init__(self):
+        super().__init__("Data", "Data Analysis Expert", ["interpreting numerical data", "statistical analysis", "data visualization description"])
+        
+        
+#Research Historical Context
+def research_historical_context(history_agent, task: str, context: list) -> list:
+    print("🏛️ History Agent: Researching historical context...")
+    history_task = f"Provide relevant historical context and information for the following task: {task}"
+    history_result = history_agent.process(history_task)
+    context.append({"role": "ai", "content": f"History Agent: {history_result}"})
+    print(f"📜 Historical context provided: {history_result[:100]}...\n")
+    return context
+
+#Analyze Data
+def identify_data_needs(data_agent, task: str, context: list) -> list:
+    print("📊 Data Agent: Identifying data needs based on historical context...")
+    historical_context = context[-1]["content"]
+    data_need_task = f"Based on the historical context, what specific data or statistical information would be helpful to answer the original question? Historical context: {historical_context}"
+    data_need_result = data_agent.process(data_need_task, context)
+    context.append({"role": "ai", "content": f"Data Agent: {data_need_result}"})
+    print(f"🔍 Data needs identified: {data_need_result[:100]}...\n")
+    return context
+
+#Provide Historical Data
+def provide_historical_data(history_agent, task: str, context: list) -> list:
+    print("🏛️ History Agent: Providing relevant historical data...")
+    data_needs = context[-1]["content"]
+    data_provision_task = f"Based on the data needs identified, provide relevant historical data or statistics. Data needs: {data_needs}"
+    data_provision_result = history_agent.process(data_provision_task, context)
+    context.append({"role": "ai", "content": f"History Agent: {data_provision_result}"})
+    print(f"📊 Historical data provided: {data_provision_result[:100]}...\n")
+    return context
+
+#Analyze Data
+def analyze_data(data_agent, task: str, context: list) -> list:
+    print("📈 Data Agent: Analyzing historical data...")
+    historical_data = context[-1]["content"]
+    analysis_task = f"Analyze the historical data provided and describe any trends or insights relevant to the original task. Historical data: {historical_data}"
+    analysis_result = data_agent.process(analysis_task, context)
+    context.append({"role": "ai", "content": f"Data Agent: {analysis_result}"})
+    print(f"💡 Data analysis results: {analysis_result[:100]}...\n")
+    return context
+
+#Synthesize Final Report
+def synthesize_final_answer(history_agent, task: str, context: list) -> str:
+    print("🏛️ History Agent: Synthesizing final answer...")
+    synthesis_task = "Based on all the historical context, data, and analysis, provide a comprehensive answer to the original task."
+    final_result = history_agent.process(synthesis_task, context)
+    return final_result
